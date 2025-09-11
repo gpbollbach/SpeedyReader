@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Save } from "lucide-react";
 import { format } from "date-fns";
 import { Student } from "@shared/schema";
+import WPMCarousel from "./WPMCarousel";
 
 interface TestRecordFormProps {
   students: Student[];
@@ -23,7 +23,7 @@ export default function TestRecordForm({
   onStudentSelect,
   onSubmit
 }: TestRecordFormProps) {
-  const [wpm, setWpm] = useState("");
+  const [wpm, setWpm] = useState(100);
   const [date, setDate] = useState<Date>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
@@ -33,11 +33,11 @@ export default function TestRecordForm({
 
     onSubmit({
       studentId: selectedStudent.id,
-      wordsPerMinute: parseInt(wpm),
+      wordsPerMinute: wpm,
       testDate: date
     });
 
-    setWpm("");
+    setWpm(100);
     console.log('Test recorded successfully');
   };
 
@@ -72,17 +72,13 @@ export default function TestRecordForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="wpm-input">Words Per Minute</Label>
-            <Input
-              id="wpm-input"
-              type="number"
-              min="0"
-              max="500"
+            <Label>Reading Speed</Label>
+            <WPMCarousel
               value={wpm}
-              onChange={(e) => setWpm(e.target.value)}
-              placeholder="Enter reading speed..."
-              className="text-lg font-medium"
-              data-testid="input-wpm"
+              onChange={setWpm}
+              min={20}
+              max={300}
+              step={5}
             />
           </div>
 
