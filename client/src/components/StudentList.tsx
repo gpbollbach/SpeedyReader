@@ -7,6 +7,7 @@ import { Search, Users, SortAsc, SortDesc, Clock } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Student, ReadingTest } from "@shared/schema";
 import StudentCard from "./StudentCard";
+import AddStudentModal from "./AddStudentModal";
 
 interface StudentListProps {
   students: Student[];
@@ -85,14 +86,7 @@ export default function StudentList({
             Students
             <Badge variant="secondary">{filteredAndSortedStudents.length}</Badge>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => console.log('Add new student')}
-            data-testid="button-add-student"
-          >
-            Add Student
-          </Button>
+          <AddStudentModal />
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

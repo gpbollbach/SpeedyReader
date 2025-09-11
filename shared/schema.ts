@@ -36,7 +36,16 @@ export const insertStudentSchema = createInsertSchema(students).omit({
 
 export const insertReadingTestSchema = createInsertSchema(readingTests).omit({
   id: true,
-  testDate: true,
+}).extend({
+  testDate: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        return new Date(val);
+      }
+      return val;
+    },
+    z.date().optional()
+  ).optional(),
 });
 
 export const updateStudentSchema = createInsertSchema(students).omit({

@@ -1,49 +1,79 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Student, ReadingTest } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
 import StudentList from "@/components/StudentList";
 import TestRecordForm from "@/components/TestRecordForm";
 import ProgressChart from "@/components/ProgressChart";
 import TestHistory from "@/components/TestHistory";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  //todo: remove mock functionality
-  const [students] = useState<Student[]>([
-    { id: '1', name: 'Emily Johnson', grade: '4' },
-    { id: '2', name: 'Marcus Rodriguez', grade: '4' },
-    { id: '3', name: 'Sarah Kim', grade: '5' },
-    { id: '4', name: 'David Chen', grade: '3' },
-    { id: '5', name: 'Aisha Patel', grade: '4' },
-    { id: '6', name: 'Jordan Williams', grade: '5' },
-  ]);
+  const { toast } = useToast();
+  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
 
-  const [tests] = useState<ReadingTest[]>([
-    // Emily Johnson - showing consistent improvement
-    { id: '1', studentId: '1', wordsPerMinute: 125, testDate: new Date('2024-01-15') },
-    { id: '2', studentId: '1', wordsPerMinute: 118, testDate: new Date('2024-01-08') },
-    { id: '3', studentId: '1', wordsPerMinute: 112, testDate: new Date('2024-01-01') },
-    { id: '4', studentId: '1', wordsPerMinute: 105, testDate: new Date('2023-12-25') },
-    
-    // Marcus Rodriguez - needs attention
-    { id: '5', studentId: '2', wordsPerMinute: 85, testDate: new Date('2024-01-10') },
-    { id: '6', studentId: '2', wordsPerMinute: 95, testDate: new Date('2024-01-03') },
-    { id: '7', studentId: '2', wordsPerMinute: 88, testDate: new Date('2023-12-28') },
-    
-    // Sarah Kim - advanced reader
-    { id: '8', studentId: '3', wordsPerMinute: 155, testDate: new Date('2024-01-12') },
-    { id: '9', studentId: '3', wordsPerMinute: 148, testDate: new Date('2024-01-05') },
-    
-    // David Chen - just started
-    { id: '10', studentId: '4', wordsPerMinute: 65, testDate: new Date('2024-01-14') },
-    
-    // Aisha Patel - steady progress
-    { id: '11', studentId: '5', wordsPerMinute: 110, testDate: new Date('2024-01-11') },
-    { id: '12', studentId: '5', wordsPerMinute: 102, testDate: new Date('2024-01-04') },
-    
-    // Jordan Williams - no recent tests
-    { id: '13', studentId: '6', wordsPerMinute: 128, testDate: new Date('2023-12-20') },
-  ]);
+  // Fetch students
+  const { data: students = [], isLoading: studentsLoading, error: studentsError } = useQuery<Student[]>({
+    queryKey: ['/api/students'],
+  });
 
-  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>(students[0]);
+  // Fetch all tests
+  const { data: tests = [], isLoading: testsLoading } = useQuery<ReadingTest[]>({
+    queryKey: ['/api/tests'],
+  });
+
+  // Set first student as selected when students load
+  if (students.length > 0 && !selectedStudent) {
+    setSelectedStudent(students[0]);
+  }
+
+  // Create test mutation
+  const createTestMutation = useMutation({
+    mutationFn: async (data: { studentId: string; wordsPerMinute: number; testDate: Date }) => {
+      const response = await apiRequest('POST', '/api/tests', {
+        studentId: data.studentId,
+        wordsPerMinute: data.wordsPerMinute,
+        testDate: data.testDate.toISOString(),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tests'] });
+      toast({
+        title: "Success!",
+        description: "Reading test recorded successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to record test: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete test mutation
+  const deleteTestMutation = useMutation({
+    mutationFn: async (testId: string) => {
+      await apiRequest('DELETE', `/api/tests/${testId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tests'] });
+      toast({
+        title: "Success!",
+        description: "Test deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete test: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
 
   const getStudentTests = (studentId: string) => {
     return tests.filter(test => test.studentId === studentId);
@@ -54,9 +84,36 @@ export default function Dashboard() {
   };
 
   const handleRecordTest = (data: { studentId: string; wordsPerMinute: number; testDate: Date }) => {
-    console.log('Recording test:', data);
-    // In real app, this would update the tests state
+    createTestMutation.mutate(data);
   };
+
+  const handleDeleteTest = (testId: string) => {
+    deleteTestMutation.mutate(testId);
+  };
+
+  // Show loading state
+  if (studentsLoading || testsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (studentsError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">Error loading students: {studentsError.message}</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,7 +159,7 @@ export default function Dashboard() {
                 <TestHistory
                   student={selectedStudent}
                   tests={getStudentTests(selectedStudent.id)}
-                  onDeleteTest={(testId) => console.log('Delete test:', testId)}
+                  onDeleteTest={handleDeleteTest}
                 />
               </>
             )}

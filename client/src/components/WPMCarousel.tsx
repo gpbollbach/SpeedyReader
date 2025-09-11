@@ -28,6 +28,11 @@ export default function WPMCarousel({
   
   const currentIndex = values.findIndex(v => v === currentValue);
   
+  // Sync internal state when value prop changes
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
+
   useEffect(() => {
     onChange(currentValue);
   }, [currentValue, onChange]);
@@ -96,6 +101,7 @@ export default function WPMCarousel({
       {/* Quick adjustment buttons */}
       <div className="flex items-center justify-between">
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => handleQuickAdjust(-10)}
@@ -106,6 +112,7 @@ export default function WPMCarousel({
         </Button>
         
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => handleQuickAdjust(-1)}
@@ -116,6 +123,7 @@ export default function WPMCarousel({
         </Button>
 
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => handleQuickAdjust(1)}
@@ -126,6 +134,7 @@ export default function WPMCarousel({
         </Button>
 
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => handleQuickAdjust(10)}
@@ -140,6 +149,7 @@ export default function WPMCarousel({
       <div className="relative">
         <div className="flex items-center justify-between">
           <Button
+            type="button"
             variant="outline"
             size="sm"
             onClick={handlePrevious}
@@ -185,6 +195,7 @@ export default function WPMCarousel({
           </div>
 
           <Button
+            type="button"
             variant="outline"
             size="sm"
             onClick={handleNext}
