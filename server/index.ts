@@ -37,6 +37,16 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Parse command-line arguments to override DB_TYPE
+  const dbTypeArg = process.argv.find(arg => arg.startsWith('--db-type='));
+  if (dbTypeArg) {
+    const value = dbTypeArg.split('=')[1];
+    if (value) {
+      process.env.DB_TYPE = value;
+      log(`DB_TYPE overridden by command-line argument: ${value}`);
+    }
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
