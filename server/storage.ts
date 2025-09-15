@@ -1,6 +1,8 @@
 import { students, readingTests, type Student, type ReadingTest, type InsertStudent, type InsertReadingTest, type UpdateStudent, type UpdateReadingTest } from "@shared/schema";
-import { db } from "./db";
+import { createDbClient } from "./db";
 import { eq } from "drizzle-orm";
+import { NeonDatabase } from "drizzle-orm/neon-serverless";
+import * as schema from "@shared/schema";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -21,17 +23,23 @@ export interface Storage {
 }
 
 export class PostgresStorage implements Storage {
+  private db: NeonDatabase<typeof schema>;
+
+  constructor() {
+    this.db = createDbClient();
+  }
+
   async getStudent(id: string): Promise<Student | undefined> {
-    const [student] = await db.select().from(students).where(eq(students.id, id));
+    const [student] = await this.db.select().from(students).where(eq(students.id, id));
     return student || undefined;
   }
 
   async getAllStudents(): Promise<Student[]> {
-    return await db.select().from(students);
+    return await this.db.select().from(students);
   }
 
   async createStudent(insertStudent: InsertStudent): Promise<Student> {
-    const [student] = await db
+    const [student] = await this.db
       .insert(students)
       .values(insertStudent)
       .returning();
@@ -39,7 +47,7 @@ export class PostgresStorage implements Storage {
   }
 
   async updateStudent(id: string, updates: UpdateStudent): Promise<Student | undefined> {
-    const [student] = await db
+    const [student] = await this.db
       .update(students)
       .set(updates)
       .where(eq(students.id, id))
@@ -48,25 +56,25 @@ export class PostgresStorage implements Storage {
   }
 
   async deleteStudent(id: string): Promise<boolean> {
-    const result = await db.delete(students).where(eq(students.id, id));
+    const result = await this.db.delete(students).where(eq(students.id, id));
     return (result.rowCount || 0) > 0;
   }
 
   async getReadingTest(id: string): Promise<ReadingTest | undefined> {
-    const [test] = await db.select().from(readingTests).where(eq(readingTests.id, id));
+    const [test] = await this.db.select().from(readingTests).where(eq(readingTests.id, id));
     return test || undefined;
   }
 
   async getTestsByStudent(studentId: string): Promise<ReadingTest[]> {
-    return await db.select().from(readingTests).where(eq(readingTests.studentId, studentId));
+    return await this.db.select().from(readingTests).where(eq(readingTests.studentId, studentId));
   }
 
   async getAllTests(): Promise<ReadingTest[]> {
-    return await db.select().from(readingTests);
+    return await this.db.select().from(readingTests);
   }
 
   async createReadingTest(insertTest: InsertReadingTest): Promise<ReadingTest> {
-    const [test] = await db
+    const [test] = await this.db
       .insert(readingTests)
       .values(insertTest)
       .returning();
@@ -74,7 +82,7 @@ export class PostgresStorage implements Storage {
   }
 
   async updateReadingTest(id: string, updates: UpdateReadingTest): Promise<ReadingTest | undefined> {
-    const [test] = await db
+    const [test] = await this.db
       .update(readingTests)
       .set(updates)
       .where(eq(readingTests.id, id))
@@ -83,7 +91,7 @@ export class PostgresStorage implements Storage {
   }
 
   async deleteReadingTest(id: string): Promise<boolean> {
-    const result = await db.delete(readingTests).where(eq(readingTests.id, id));
+    const result = await this.db.delete(readingTests).where(eq(readingTests.id, id));
     return (result.rowCount || 0) > 0;
   }
 }
