@@ -7,6 +7,7 @@ import StudentList from "@/components/StudentList";
 import TestRecordForm from "@/components/TestRecordForm";
 import ProgressChart from "@/components/ProgressChart";
 import TestHistory from "@/components/TestHistory";
+import ClassDistributionChart from "@/components/ClassDistributionChart";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
@@ -126,14 +127,15 @@ export default function Dashboard() {
 
         {/* Main Layout - 3 columns on desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Column 1: Student List */}
-          <div className="lg:col-span-5">
+          {/* Column 1: Student List and Class Distribution */}
+          <div className="lg:col-span-5 space-y-6">
             <StudentList
               students={students}
               tests={tests}
               selectedStudent={selectedStudent}
               onStudentSelect={handleStudentSelect}
             />
+            <ClassDistributionChart tests={tests} />
           </div>
 
           {/* Column 2: Record Test Form */}
