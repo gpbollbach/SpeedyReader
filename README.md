@@ -80,6 +80,15 @@ npm run dev
 
 This will start the development server for both the frontend and backend. You can access the application at `http://localhost:5000`.
 
+You can also specify the database type directly on the command line, which will override the `DB_TYPE` setting in your `.env` file:
+```bash
+# Run the dev server with the in-memory database
+npm run dev -- --db-type=in-memory
+
+# Run the production build with the in-memory database
+npm run start -- --db-type=in-memory
+```
+
 ## Running with Docker
 
 You can also run the entire application stack using Docker and Docker Compose.
