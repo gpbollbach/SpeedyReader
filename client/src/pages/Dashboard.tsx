@@ -124,10 +124,10 @@ export default function Dashboard() {
           <p className="text-muted-foreground">Monitor and track student reading progress</p>
         </div>
 
-        {/* Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Student List */}
-          <div className="lg:col-span-1">
+        {/* Main Layout - 3 columns on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Column 1: Student List */}
+          <div className="lg:col-span-5">
             <StudentList
               students={students}
               tests={tests}
@@ -136,9 +136,8 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Right Column - Student Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Test Recording Form */}
+          {/* Column 2: Record Test Form */}
+          <div className="lg:col-span-3">
             <TestRecordForm
               students={students}
               selectedStudent={selectedStudent}
@@ -148,9 +147,11 @@ export default function Dashboard() {
               }}
               onSubmit={handleRecordTest}
             />
+          </div>
 
-            {/* Selected Student Details */}
-            {selectedStudent && (
+          {/* Column 3: Progress and History */}
+          <div className="lg:col-span-4 space-y-6">
+            {selectedStudent ? (
               <>
                 <ProgressChart
                   student={selectedStudent}
@@ -162,6 +163,10 @@ export default function Dashboard() {
                   onDeleteTest={handleDeleteTest}
                 />
               </>
+            ) : (
+              <div className="h-full flex items-center justify-center text-center text-muted-foreground bg-muted/20 rounded-lg">
+                <p>Select a student to see their progress</p>
+              </div>
             )}
           </div>
         </div>
