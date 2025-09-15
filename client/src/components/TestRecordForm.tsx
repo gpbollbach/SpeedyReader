@@ -31,10 +31,16 @@ export default function TestRecordForm({
     e.preventDefault();
     if (!selectedStudent || !wpm) return;
 
+    // Combine the selected date with the current time to ensure uniqueness
+    const submissionDate = new Date();
+    submissionDate.setFullYear(date.getFullYear());
+    submissionDate.setMonth(date.getMonth());
+    submissionDate.setDate(date.getDate());
+
     onSubmit({
       studentId: selectedStudent.id,
       wordsPerMinute: wpm,
-      testDate: date
+      testDate: submissionDate
     });
 
     setWpm(100);
