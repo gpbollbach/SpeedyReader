@@ -34,6 +34,22 @@ This is a teacher dashboard application for tracking and monitoring student read
     npm install
     ```
 
+### Database Setup
+
+After setting up your PostgreSQL database, you can use the provided DDL script to create the necessary tables. Connect to your database and execute the script:
+
+```bash
+psql -d your-database-name -f setup.sql
+```
+
+Replace `your-database-name` with the name of your database. This will create the `students` and `reading_tests` tables.
+
+Alternatively, you can use the `db:push` command to let Drizzle manage the schema based on the definitions in `shared/schema.ts`:
+
+```bash
+npm run db:push
+```
+
 ### Environment Variables
 
 Before running the application, you need to set up your environment variables. Create a `.env` file in the root of the project and add the following variable:
