@@ -25,8 +25,22 @@ export default function WPMCarousel({
   for (let i = min; i <= max; i += step) {
     values.push(i);
   }
+
+  // Find the index of the value in the array that is closest to the target value
+  const findClosestIndex = (target: number) => {
+    return values.reduce(
+      (closestIndex, currentVal, currentIndex) => {
+        const closestVal = values[closestIndex];
+        if (Math.abs(currentVal - target) < Math.abs(closestVal - target)) {
+          return currentIndex;
+        }
+        return closestIndex;
+      },
+      0
+    );
+  };
   
-  const currentIndex = values.findIndex(v => v === currentValue);
+  const currentIndex = findClosestIndex(currentValue);
   
   // Sync internal state when value prop changes
   useEffect(() => {
