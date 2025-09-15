@@ -1,10 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { type Storage } from "./storage";
 import { insertStudentSchema, insertReadingTestSchema, updateStudentSchema, updateReadingTestSchema } from "@shared/schema";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, storage: Storage): Promise<Server> {
   // Student routes
   app.get("/api/students", async (req, res) => {
     try {

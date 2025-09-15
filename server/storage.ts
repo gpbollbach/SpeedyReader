@@ -109,5 +109,3 @@ export const createStorage = (): Storage => {
     return new PostgresStorage();
   }
 };
-
-export const storage = createStorage();
