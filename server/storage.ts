@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 // modify the interface with any CRUD methods
 // you might need
 
-export interface IStorage {
+export interface Storage {
   getStudent(id: string): Promise<Student | undefined>;
   getAllStudents(): Promise<Student[]>;
   createStudent(student: InsertStudent): Promise<Student>;
@@ -20,7 +20,7 @@ export interface IStorage {
   deleteReadingTest(id: string): Promise<boolean>;
 }
 
-export class DatabaseStorage implements IStorage {
+export class PostgresStorage implements Storage {
   async getStudent(id: string): Promise<Student | undefined> {
     const [student] = await db.select().from(students).where(eq(students.id, id));
     return student || undefined;
@@ -88,4 +88,18 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+import { InMemoryStorage } from "./in-memory-storage";
+
+export const createStorage = (): Storage => {
+  const dbType = process.env.DB_TYPE || "postgres";
+
+  if (dbType === "in-memory") {
+    console.log("Using in-memory database");
+    return new InMemoryStorage();
+  } else {
+    console.log("Using PostgreSQL database");
+    return new PostgresStorage();
+  }
+};
+
+export const storage = createStorage();
