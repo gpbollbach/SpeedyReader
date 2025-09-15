@@ -70,6 +70,57 @@ npm run dev
 
 This will start the development server for both the frontend and backend. You can access the application at `http://localhost:5000`.
 
+## Running with Docker
+
+You can also run the entire application stack using Docker and Docker Compose.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Setup
+
+1.  **Environment Variables for Database:**
+    The `docker-compose.yml` file is configured to use default values for the PostgreSQL database connection. If you want to override them, create a `.env` file in the project root and add the following variables:
+    ```
+    POSTGRES_USER=myuser
+    POSTGRES_PASSWORD=mypassword
+    POSTGRES_DB=mydatabase
+    ```
+
+2.  **Build and Run:**
+    Build and start the services in detached mode:
+    ```bash
+    docker-compose up -d --build
+    ```
+    The application will be available at `http://localhost:5000`.
+
+3.  **Database Initialization:**
+    Once the containers are running, you need to set up the database schema. You can do this by executing the `setup.sql` script inside the `db` container.
+
+    First, find the container ID for the database service:
+    ```bash
+    docker ps
+    ```
+
+    Then, execute the setup script using `docker exec`:
+    ```bash
+    docker exec -i <db-container-id> psql -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-db} < setup.sql
+    ```
+
+    Alternatively, you can run the `db:push` command inside the `app` container to have Drizzle initialize the schema:
+    ```bash
+    docker-compose exec app npm run db:push
+    ```
+
+### Stopping the Application
+
+To stop the services, run:
+```bash
+docker-compose down
+```
+
 ## Available Scripts
 
 - `npm run dev`: Starts the application in development mode.
