@@ -55,8 +55,8 @@ npm run db:push
 Before running the application, you need to set up your environment variables. Create a `.env` file in the root of the project and add the following variables.
 
 -   `DB_TYPE`: Specifies the database implementation to use.
-    -   `postgres` (default): Uses a PostgreSQL database.
-    -   `in-memory`: Uses a temporary, in-memory database with pre-seeded sample data.
+    -   `in-memory` (default): Uses a temporary, in-memory database with pre-seeded sample data.
+    -   `postgres`: Uses a PostgreSQL database.
 -   `DATABASE_URL`: The connection string for your PostgreSQL database. This is only required if `DB_TYPE` is set to `postgres`.
 
 Example `.env` file for PostgreSQL:
