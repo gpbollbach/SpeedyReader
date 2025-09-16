@@ -8,6 +8,7 @@ import TestRecordForm from "@/components/TestRecordForm";
 import ProgressChart from "@/components/ProgressChart";
 import TestHistory from "@/components/TestHistory";
 import ClassDistributionChart from "@/components/ClassDistributionChart";
+import StudentAverageChart from "@/components/StudentAverageChart";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
@@ -125,17 +126,16 @@ export default function Dashboard() {
           <p className="text-muted-foreground">Monitor and track student reading progress</p>
         </div>
 
-        {/* Main Layout - 3 columns on desktop */}
+        {/* Main Layout - Top Row */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Column 1: Student List and Class Distribution */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Column 1: Student List */}
+          <div className="lg:col-span-5">
             <StudentList
               students={students}
               tests={tests}
               selectedStudent={selectedStudent}
               onStudentSelect={handleStudentSelect}
             />
-            <ClassDistributionChart tests={tests} />
           </div>
 
           {/* Column 2: Record Test Form */}
@@ -171,6 +171,12 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Second Row - Class-wide Analytics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ClassDistributionChart tests={tests} />
+          <StudentAverageChart students={students} tests={tests} />
         </div>
       </div>
     </div>
