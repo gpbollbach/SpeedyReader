@@ -1,18 +1,20 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Minus, Clock, BookOpen } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Clock, BookOpen, BarChart3 } from "lucide-react";
 import { Student, ReadingTest } from "@shared/schema";
 
 interface StudentCardProps {
   student: Student;
   tests: ReadingTest[];
+  latestMovingAverage: number;
   isSelected?: boolean;
   onClick?: () => void;
 }
 
 export default function StudentCard({ 
   student, 
-  tests, 
+  tests,
+  latestMovingAverage,
   isSelected = false, 
   onClick 
 }: StudentCardProps) {
@@ -85,6 +87,14 @@ export default function StudentCard({
                 <BookOpen className="w-4 h-4 text-muted-foreground" />
                 <span className="font-medium text-foreground" data-testid={`text-wpm-${student.id}`}>
                   {latestTest.wordsPerMinute} WPM
+                </span>
+              </div>
+            )}
+            {latestTest && (
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <BarChart3 className="w-4 h-4" />
+                <span className="font-medium" data-testid={`text-avg-wpm-${student.id}`}>
+                  {latestMovingAverage} Avg
                 </span>
               </div>
             )}
