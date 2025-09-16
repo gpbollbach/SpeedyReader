@@ -9,18 +9,29 @@ interface ProgressChartProps {
 }
 
 export default function ProgressChart({ student, tests }: ProgressChartProps) {
-  const chartData = tests
-    .sort((a, b) => new Date(a.testDate).getTime() - new Date(b.testDate).getTime())
-    .map((test) => ({
-      date: new Date(test.testDate).toLocaleDateString(),
-      wpm: test.wordsPerMinute,
-    }));
+  const sortedTests = tests
+    .slice()
+    .sort((a, b) => new Date(a.testDate).getTime() - new Date(b.testDate).getTime());
+
+  const chartData = sortedTests.map((test, index, allTests) => {
+      // Calculate 3-point trailing moving average
+      const sliceEnd = index + 1;
+      const sliceStart = Math.max(0, sliceEnd - 3);
+      const lastThreeTests = allTests.slice(sliceStart, sliceEnd);
+      const movingAverage = lastThreeTests.reduce((sum, t) => sum + t.wordsPerMinute, 0) / lastThreeTests.length;
+
+      return {
+        date: new Date(test.testDate).toLocaleDateString(),
+        wpm: test.wordsPerMinute,
+        movingAverage: Math.round(movingAverage),
+      };
+    });
 
   const getProgressInfo = () => {
-    if (tests.length < 2) return null;
+    if (sortedTests.length < 2) return null;
     
-    const firstTest = tests[tests.length - 1];
-    const lastTest = tests[0];
+    const firstTest = sortedTests[0];
+    const lastTest = sortedTests[sortedTests.length - 1];
     const improvement = lastTest.wordsPerMinute - firstTest.wordsPerMinute;
     const improvementPercent = Math.round((improvement / firstTest.wordsPerMinute) * 100);
     
@@ -75,11 +86,16 @@ export default function ProgressChart({ student, tests }: ProgressChartProps) {
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-popover border border-popover-border rounded-md p-3 shadow-md">
+                        <div className="bg-popover border rounded-md p-3 shadow-md">
                           <p className="text-sm font-medium">{label}</p>
                           <p className="text-sm text-chart-1">
                             Reading Speed: {payload[0].value} WPM
                           </p>
+                          {payload[1] && (
+                            <p className="text-sm text-chart-2">
+                              3-Test Avg: {payload[1].value} WPM
+                            </p>
+                          )}
                         </div>
                       );
                     }
@@ -93,6 +109,17 @@ export default function ProgressChart({ student, tests }: ProgressChartProps) {
                   strokeWidth={3}
                   dot={{ fill: "hsl(var(--chart-1))", strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, stroke: "hsl(var(--chart-1))", strokeWidth: 2 }}
+                  name="WPM"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="movingAverage"
+                  stroke="hsl(var(--chart-2))"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  dot={false}
+                  activeDot={false}
+                  name="3-Test Average"
                 />
               </LineChart>
             </ResponsiveContainer>
