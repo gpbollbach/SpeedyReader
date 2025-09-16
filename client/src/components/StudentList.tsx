@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Users, SortAsc, SortDesc, Clock } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Student, ReadingTest } from "@shared/schema";
+import { calculateStudentAnalytics } from "@/lib/utils";
 import StudentCard from "./StudentCard";
 import AddStudentModal from "./AddStudentModal";
 
@@ -136,15 +137,21 @@ export default function StudentList({
               <p>No students found</p>
             </div>
           ) : (
-            filteredAndSortedStudents.map((student) => (
-              <StudentCard
-                key={student.id}
-                student={student}
-                tests={getStudentTests(student.id)}
-                isSelected={selectedStudent?.id === student.id}
-                onClick={() => onStudentSelect(student)}
-              />
-            ))
+            filteredAndSortedStudents.map((student) => {
+              const studentTests = getStudentTests(student.id);
+              const { latestMovingAverage } = calculateStudentAnalytics(studentTests);
+
+              return (
+                <StudentCard
+                  key={student.id}
+                  student={student}
+                  tests={studentTests}
+                  latestMovingAverage={latestMovingAverage}
+                  isSelected={selectedStudent?.id === student.id}
+                  onClick={() => onStudentSelect(student)}
+                />
+              );
+            })
           )}
         </div>
       </CardContent>

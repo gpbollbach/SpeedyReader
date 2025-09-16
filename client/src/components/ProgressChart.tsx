@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from "lucide-react";
 import { ReadingTest, Student } from "@shared/schema";
+import { calculateStudentAnalytics } from "@/lib/utils";
 
 interface ProgressChartProps {
   student: Student;
@@ -9,31 +10,17 @@ interface ProgressChartProps {
 }
 
 export default function ProgressChart({ student, tests }: ProgressChartProps) {
-  const sortedTests = tests
-    .slice()
-    .sort((a, b) => new Date(a.testDate).getTime() - new Date(b.testDate).getTime());
-
-  const chartData = sortedTests.map((test, index, allTests) => {
-      // Calculate 3-point trailing moving average
-      const sliceEnd = index + 1;
-      const sliceStart = Math.max(0, sliceEnd - 3);
-      const lastThreeTests = allTests.slice(sliceStart, sliceEnd);
-      const movingAverage = lastThreeTests.reduce((sum, t) => sum + t.wordsPerMinute, 0) / lastThreeTests.length;
-
-      return {
-        date: new Date(test.testDate).toLocaleDateString(),
-        wpm: test.wordsPerMinute,
-        movingAverage: Math.round(movingAverage),
-      };
-    });
+  const { chartData, latestWpm, latestMovingAverage } = calculateStudentAnalytics(tests);
 
   const getProgressInfo = () => {
-    if (sortedTests.length < 2) return null;
+    if (tests.length < 2) return null;
     
-    const firstTest = sortedTests[0];
-    const lastTest = sortedTests[sortedTests.length - 1];
+    const sortedByDate = tests.slice().sort((a, b) => new Date(a.testDate).getTime() - new Date(b.testDate).getTime());
+    const firstTest = sortedByDate[0];
+    const lastTest = sortedByDate[sortedByDate.length - 1];
     const improvement = lastTest.wordsPerMinute - firstTest.wordsPerMinute;
-    const improvementPercent = Math.round((improvement / firstTest.wordsPerMinute) * 100);
+    // Avoid division by zero if first test WPM is 0
+    const improvementPercent = firstTest.wordsPerMinute === 0 ? 0 : Math.round((improvement / firstTest.wordsPerMinute) * 100);
     
     return { improvement, improvementPercent };
   };
@@ -128,7 +115,10 @@ export default function ProgressChart({ student, tests }: ProgressChartProps) {
         
         {tests.length > 0 && (
           <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-            <span>Latest: {tests[0].wordsPerMinute} WPM</span>
+            <div className="space-y-1">
+              <div>Latest WPM: <span className="font-semibold text-foreground">{latestWpm}</span></div>
+              <div>Latest 3-Test Avg: <span className="font-semibold text-foreground">{latestMovingAverage}</span></div>
+            </div>
             <span>{tests.length} total tests</span>
           </div>
         )}
