@@ -1,0 +1,25 @@
+# Netlify configuration for the frontend of the SpeedyReader application.
+#
+# Note: These settings will only deploy the static React frontend.
+# The Express.js backend server in this project is stateful and cannot be
+# deployed on Netlify's standard static hosting or serverless function environment
+# without a significant rewrite.
+#
+# For deploying the full application (frontend + backend), consider platforms
+# like Render, Railway, or Fly.io that support long-running Node.js services.
+
+[build]
+  # This command builds both the frontend and backend. Netlify will use the
+  # publish directory specified below to find the frontend assets.
+  command = "npm run build"
+
+  # The directory where the built frontend assets are located.
+  # This is configured in vite.config.ts.
+  publish = "dist/public"
+
+# Redirect rule for Single-Page Applications (SPAs).
+# This ensures that all routes are handled by the React app's client-side router.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

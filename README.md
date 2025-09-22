@@ -148,6 +148,30 @@ docker-compose down
 - `npm run check`: Runs the TypeScript compiler to check for errors.
 - `npm run db:push`: Pushes database schema changes using Drizzle Kit.
 
+## Deployment
+
+This project contains a stateful Node.js/Express server and a static React frontend. These two parts have different hosting requirements.
+
+### Deploying the Frontend
+
+The frontend can be easily deployed to a static hosting provider like Netlify or Vercel. A `netlify.toml` file is included in this repository to configure the deployment on Netlify.
+
+- **Build Command:** `npm run build`
+- **Publish Directory:** `dist/public`
+
+When you link your GitHub repository to a new Netlify site, it will automatically use these settings to build and deploy your frontend.
+
+### Deploying the Backend (and Full Application)
+
+The Node.js server **cannot** be deployed on a standard static hosting platform like Netlify. It requires a hosting provider that can run a persistent Node.js process.
+
+For deploying the full-stack application, we recommend services like:
+- [Render](https://render.com/)
+- [Railway](https://railway.app/)
+- [Fly.io](https://fly.io/)
+
+These platforms are designed to host full-stack applications and databases.
+
 ## System Architecture
 
 ### Frontend Architecture
