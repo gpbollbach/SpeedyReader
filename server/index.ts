@@ -26,10 +26,6 @@ app.use((req, res, next) => {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
       log(logLine);
     }
   });
@@ -38,6 +34,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  log("starting speedy-reader server");
   // Parse command-line arguments to override DB_TYPE
   const dbTypeArg = process.argv.find(arg => arg.startsWith('--db-type='));
   if (dbTypeArg) {

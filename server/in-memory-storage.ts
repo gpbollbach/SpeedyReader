@@ -23,11 +23,15 @@ export class InMemoryStorage implements Storage {
     const student2Id = randomUUID();
     const student3Id = randomUUID();
 
+    console.log("Seeding database with initial data");
+    console.log("Creating students");
     this.students.push({ id: student1Id, name: "Alice", grade: "5" });
     this.students.push({ id: student2Id, name: "Bob", grade: "4" });
     this.students.push({ id: student3Id, name: "Charlie", grade: "6" });
+    console.log("Students created:", this.students);
 
     // Seed with 2 tests for each student
+    console.log("Creating reading tests");
     this.readingTests.push({ id: randomUUID(), studentId: student1Id, wordsPerMinute: 120, testDate: new Date() });
     this.readingTests.push({ id: randomUUID(), studentId: student1Id, wordsPerMinute: 125, testDate: new Date() });
 
