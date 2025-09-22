@@ -1,4 +1,5 @@
 import { students, readingTests, type Student, type ReadingTest, type InsertStudent, type InsertReadingTest, type UpdateStudent, type UpdateReadingTest } from "@shared/schema";
+export type { Student, ReadingTest, InsertStudent, InsertReadingTest, UpdateStudent, UpdateReadingTest };
 import { createDbClient } from "./db";
 import { eq } from "drizzle-orm";
 import { NeonDatabase } from "drizzle-orm/neon-serverless";
