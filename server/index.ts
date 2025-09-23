@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { createStorage } from "./storage";
 import { setupVite, serveStatic, log } from "./vite";
+import { setupWebSocketServer } from "./ws";
 
 const app = express();
 app.use(express.json());
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
 
   const storage = createStorage();
   const server = await registerRoutes(app, storage);
+  setupWebSocketServer(server)
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
