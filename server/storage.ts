@@ -100,13 +100,11 @@ export class PostgresStorage implements Storage {
 import { InMemoryStorage } from "./in-memory-storage";
 
 export const createStorage = (): Storage => {
-  const dbType = process.env.DB_TYPE || "in-memory";
-
-  if (dbType === "in-memory") {
-    console.log("Using in-memory database");
-    return new InMemoryStorage();
-  } else {
+  if (process.env.DB_TYPE === "postgres") {
     console.log("Using PostgreSQL database");
     return new PostgresStorage();
+  } else {
+    console.log("Using in-memory database");
+    return new InMemoryStorage();
   }
 };
