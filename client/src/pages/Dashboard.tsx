@@ -10,6 +10,7 @@ import TestHistory from "@/components/TestHistory";
 import ClassDistributionChart from "@/components/ClassDistributionChart";
 import StudentAverageChart from "@/components/StudentAverageChart";
 import { useToast } from "@/hooks/use-toast";
+import { BootupTerminal } from "@/components/BootupTerminal";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -96,10 +97,9 @@ export default function Dashboard() {
   // Show loading state
   if (studentsLoading || testsLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading dashboard...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl h-[80vh]">
+          <BootupTerminal />
         </div>
       </div>
     );
@@ -108,10 +108,13 @@ export default function Dashboard() {
   // Show error state
   if (studentsError) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="text-center space-y-4">
           <p className="text-destructive">Error loading students: {studentsError.message}</p>
           <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+        <div className="w-full max-w-4xl h-[50vh] mt-4">
+          <BootupTerminal />
         </div>
       </div>
     );
