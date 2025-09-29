@@ -29,18 +29,13 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: '0.0.0.0',
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
     hmr: {
       clientPort: 443,
-      server: {
-        on: (event, listener) => {
-          console.log(`WebSocket event: ${event}`);
-          return listener;
-        },
-      },
     },
   },
 });
