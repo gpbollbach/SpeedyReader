@@ -35,6 +35,12 @@ export default defineConfig({
     },
     hmr: {
       clientPort: 443,
+      server: {
+        on: (event, listener) => {
+          console.log(`WebSocket event: ${event}`);
+          return listener;
+        },
+      },
     },
   },
 });
