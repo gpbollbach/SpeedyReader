@@ -4,7 +4,7 @@ import { type Server } from "http";
 let wss: WebSocketServer;
 
 export function setupWebSocketServer(server: Server) {
-  wss = new WebSocketServer({ server });
+  wss = new WebSocketServer({ server, path: "/ws/logs" });
 
   wss.on("connection", (ws: WebSocket) => {
     console.log("Client connected");
