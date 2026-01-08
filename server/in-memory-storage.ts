@@ -56,6 +56,7 @@ export class InMemoryStorage implements Storage {
       id: randomUUID(),
       ...studentData,
       grade: studentData.grade ?? null,
+      lastSeen: null,
     };
     this.students.push(newStudent);
     return newStudent;
