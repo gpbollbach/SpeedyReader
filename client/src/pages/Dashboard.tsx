@@ -19,11 +19,13 @@ export default function Dashboard() {
   // Fetch students
   const { data: students = [], isLoading: studentsLoading, error: studentsError } = useQuery<Student[]>({
     queryKey: ['/api/students'],
+    refetchInterval: 5000,
   });
 
   // Fetch all tests
   const { data: tests = [], isLoading: testsLoading } = useQuery<ReadingTest[]>({
     queryKey: ['/api/tests'],
+    refetchInterval: 5000,
   });
 
   // Set first student as selected when students load
