@@ -7,6 +7,7 @@ export const students = pgTable("students", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   grade: text("grade"),
+  lastSeen: timestamp("last_seen"),
 });
 
 export const readingTests = pgTable("reading_tests", {

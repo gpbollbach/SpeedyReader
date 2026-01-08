@@ -26,9 +26,9 @@ export class InMemoryStorage implements Storage {
 
     log("Seeding database with initial data");
     log("Creating students");
-    this.students.push({ id: student1Id, name: "Alice", grade: "5" });
-    this.students.push({ id: student2Id, name: "Bob", grade: "4" });
-    this.students.push({ id: student3Id, name: "Charlie", grade: "6" });
+    this.students.push({ id: student1Id, name: "Alice", grade: "5", lastSeen: null });
+    this.students.push({ id: student2Id, name: "Bob", grade: "4", lastSeen: null });
+    this.students.push({ id: student3Id, name: "Charlie", grade: "6", lastSeen: null });
     log(`Students created: ${JSON.stringify(this.students)}`);
 
     // Seed with 2 tests for each student
@@ -77,6 +77,13 @@ export class InMemoryStorage implements Storage {
     // Also delete their tests
     this.readingTests = this.readingTests.filter((t) => t.studentId !== id);
     return this.students.length < initialLength;
+  }
+
+  async updateStudentStatus(id: string): Promise<void> {
+    const student = this.students.find(s => s.id === id);
+    if (student) {
+      student.lastSeen = new Date();
+    }
   }
 
   async getReadingTest(id: string): Promise<ReadingTest | undefined> {

@@ -55,6 +55,8 @@ export default function StudentCard({
     return new Date(latestTest.testDate).toLocaleDateString();
   };
 
+  const isOnline = student.lastSeen && (new Date().getTime() - new Date(student.lastSeen).getTime() < 10000);
+
   return (
     <Card 
       className={`hover-elevate cursor-pointer transition-colors ${
@@ -66,9 +68,16 @@ export default function StudentCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-foreground truncate" data-testid={`text-student-name-${student.id}`}>
-              {student.name}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-foreground truncate" data-testid={`text-student-name-${student.id}`}>
+                {student.name}
+              </h3>
+              <div 
+                className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}
+                title={isOnline ? 'Online' : 'Offline'}
+                data-testid={`status-student-${student.id}`}
+              />
+            </div>
             {student.grade && (
               <p className="text-sm text-muted-foreground mt-1">
                 Grade {student.grade}

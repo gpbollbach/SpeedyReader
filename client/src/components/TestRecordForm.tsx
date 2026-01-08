@@ -112,11 +112,17 @@ export default function TestRecordForm({
                 <SelectValue placeholder="Choose a student..." />
               </SelectTrigger>
               <SelectContent>
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.name} {student.grade && `(Grade ${student.grade})`}
-                  </SelectItem>
-                ))}
+                {students.map((student) => {
+                  const isOnline = student.lastSeen && (new Date().getTime() - new Date(student.lastSeen).getTime() < 10000);
+                  return (
+                    <SelectItem key={student.id} value={student.id}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+                        {student.name} {student.grade && `(Grade ${student.grade})`}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

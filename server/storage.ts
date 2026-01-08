@@ -14,6 +14,7 @@ export interface Storage {
   createStudent(student: InsertStudent): Promise<Student>;
   updateStudent(id: string, updates: UpdateStudent): Promise<Student | undefined>;
   deleteStudent(id: string): Promise<boolean>;
+  updateStudentStatus(id: string): Promise<void>;
   
   getReadingTest(id: string): Promise<ReadingTest | undefined>;
   getTestsByStudent(studentId: string): Promise<ReadingTest[]>;
@@ -59,6 +60,13 @@ export class PostgresStorage implements Storage {
   async deleteStudent(id: string): Promise<boolean> {
     const result = await this.db.delete(students).where(eq(students.id, id));
     return (result.rowCount || 0) > 0;
+  }
+
+  async updateStudentStatus(id: string): Promise<void> {
+    await this.db
+      .update(students)
+      .set({ lastSeen: new Date() })
+      .where(eq(students.id, id));
   }
 
   async getReadingTest(id: string): Promise<ReadingTest | undefined> {

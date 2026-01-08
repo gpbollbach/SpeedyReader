@@ -75,6 +75,16 @@ export async function registerRoutes(app: Express, storage: Storage): Promise<Se
     }
   });
 
+  app.post("/api/students/:id/keepalive", async (req, res) => {
+    try {
+      await storage.updateStudentStatus(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error in keepalive:", error);
+      res.status(500).json({ error: "Failed to process keepalive" });
+    }
+  });
+
   // Reading test routes
   app.get("/api/tests", async (req, res) => {
     try {
