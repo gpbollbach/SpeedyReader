@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, Clock, BookOpen, BarChart3 } from "lucide-react";
@@ -18,6 +19,13 @@ export default function StudentCard({
   isSelected = false, 
   onClick 
 }: StudentCardProps) {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const latestTest = tests[0];
   const previousTest = tests[1];
   
@@ -55,7 +63,7 @@ export default function StudentCard({
     return new Date(latestTest.testDate).toLocaleDateString();
   };
 
-  const isOnline = student.lastSeen && (new Date().getTime() - new Date(student.lastSeen).getTime() < 10000);
+  const isOnline = student.lastSeen && (now.getTime() - new Date(student.lastSeen).getTime() < 10000);
 
   return (
     <Card 

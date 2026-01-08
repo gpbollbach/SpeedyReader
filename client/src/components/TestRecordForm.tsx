@@ -26,6 +26,12 @@ export default function TestRecordForm({
   const [wpm, setWpm] = useState(100);
   const [date, setDate] = useState<Date>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Timer state
   const DURATION = 60;
@@ -113,7 +119,7 @@ export default function TestRecordForm({
               </SelectTrigger>
               <SelectContent>
                 {students.map((student) => {
-                  const isOnline = student.lastSeen && (new Date().getTime() - new Date(student.lastSeen).getTime() < 10000);
+                  const isOnline = student.lastSeen && (now.getTime() - new Date(student.lastSeen).getTime() < 10000);
                   return (
                     <SelectItem key={student.id} value={student.id}>
                       <div className="flex items-center gap-2">
