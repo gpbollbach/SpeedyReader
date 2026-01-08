@@ -85,6 +85,23 @@ export async function registerRoutes(app: Express, storage: Storage): Promise<Se
     }
   });
 
+  app.get("/api/students/keepalive/by-name/:name", async (req, res) => {
+    try {
+      const studentsList = await storage.getAllStudents();
+      const student = studentsList.find(s => s.name.toLowerCase() === req.params.name.toLowerCase());
+      
+      if (!student) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      await storage.updateStudentStatus(student.id);
+      res.send(`Keepalive updated for ${student.name}. You can refresh this page to keep them online.`);
+    } catch (error) {
+      console.error("Error in keepalive by name:", error);
+      res.status(500).json({ error: "Failed to process keepalive" });
+    }
+  });
+
   // Reading test routes
   app.get("/api/tests", async (req, res) => {
     try {
