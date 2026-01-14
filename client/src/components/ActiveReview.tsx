@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Student } from "@shared/schema";
-import { Check, X, BookOpen } from "lucide-react";
+import { Check, X, BookOpen, Play, Pause, RotateCcw } from "lucide-react";
 
 interface TextExample {
   id: string;
@@ -61,15 +61,44 @@ interface ActiveReviewProps {
 export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveReviewProps) {
   const [selectedText, setSelectedText] = useState<TextExample | null>(null);
   const [markedIndices, setMarkedIndices] = useState<Set<number>>(new Set());
-  const [startTime, setStartTime] = useState<number | null>(null);
+  
+  // Timer state
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [isActive, setIsActive] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Reset state when text changes or dialog opens
+  // Reset state when text changes or dialog opens/closes
   useEffect(() => {
-    if (open) {
+    if (!open) {
+      stopTimer();
+      resetTimer();
       setMarkedIndices(new Set());
-      setStartTime(Date.now());
     }
-  }, [open, selectedText]);
+  }, [open]);
+
+  useEffect(() => {
+    if (isActive && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      stopTimer();
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isActive, timeLeft]);
+
+  const startTimer = () => setIsActive(true);
+  const stopTimer = () => setIsActive(false);
+  const resetTimer = () => {
+    setIsActive(false);
+    setTimeLeft(60);
+    setElapsedSeconds(0);
+    setMarkedIndices(new Set());
+  };
 
   const words = useMemo(() => {
     if (!selectedText) return [];
@@ -77,8 +106,16 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
   }, [selectedText]);
 
   const correctCount = markedIndices.size;
+  
+  const currentWPM = useMemo(() => {
+    if (elapsedSeconds === 0) return 0;
+    return Math.round((correctCount / elapsedSeconds) * 60);
+  }, [correctCount, elapsedSeconds]);
 
   const toggleWord = (index: number) => {
+    // Only allow marking if timer is running or has been started
+    if (elapsedSeconds === 0 && !isActive) return;
+    
     const newIndices = new Set(markedIndices);
     if (newIndices.has(index)) {
       newIndices.delete(index);
@@ -89,17 +126,11 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
   };
 
   const handleSave = () => {
-    if (!selectedText || !startTime) return;
+    if (!selectedText) return;
     
-    const durationMinutes = (Date.now() - startTime) / 60000;
-    // For a simple live test, we assume the teacher stops the timer when reading is done.
-    // If duration is too small, default to 1 minute for safety in calculation.
-    const effectiveDuration = Math.max(durationMinutes, 0.1); 
-    const wpm = Math.round(correctCount / effectiveDuration);
-
     onSubmit({
       studentId: student.id,
-      wordsPerMinute: wpm,
+      wordsPerMinute: currentWPM,
       testDate: new Date(),
     });
     onOpenChange(false);
@@ -110,14 +141,34 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
         <DialogHeader className="p-6 border-b">
           <div className="flex items-center justify-between">
-            <DialogTitle>Active Review: {student.name}</DialogTitle>
-            {selectedText && (
-              <div className="flex items-center gap-4">
-                <Badge variant="outline" className="text-lg py-1 px-3">
-                  {correctCount} / {selectedText.wordCount} words correct
-                </Badge>
+            <div className="space-y-1">
+              <DialogTitle>Active Review: {student.name}</DialogTitle>
+              {selectedText && (
+                <p className="text-sm text-muted-foreground">
+                  Text: {selectedText.title} ({selectedText.wordCount} words)
+                </p>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-mono font-bold tabular-nums">
+                  00:{timeLeft.toString().padStart(2, '0')}
+                </div>
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Time Remaining</div>
               </div>
-            )}
+
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary tabular-nums">
+                  {currentWPM}
+                </div>
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Current WPM</div>
+              </div>
+
+              <Badge variant="outline" className="text-lg py-1 px-3">
+                {correctCount} / {selectedText?.wordCount || 0}
+              </Badge>
+            </div>
           </div>
         </DialogHeader>
 
@@ -132,9 +183,12 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
                 {SAMPLE_TEXTS.map((text) => (
                   <button
                     key={text.id}
-                    onClick={() => setSelectedText(text)}
+                    onClick={() => {
+                      setSelectedText(text);
+                      resetTimer();
+                    }}
                     className={`w-full text-left p-3 rounded-md transition-colors hover:bg-accent/50 ${
-                      selectedText?.id === text.id ? "bg-accent" : ""
+                      selectedText?.id === text.id ? "bg-accent shadow-sm" : ""
                     }`}
                   >
                     <div className="font-medium">{text.title}</div>
@@ -149,25 +203,62 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
 
           {/* Detail: Text View & Marking */}
           <div className="flex-1 flex flex-col bg-background">
+            <div className="p-4 border-b bg-muted/5 flex items-center justify-center gap-2">
+              {!isActive ? (
+                <Button 
+                  size="sm" 
+                  onClick={startTimer}
+                  disabled={!selectedText || timeLeft === 0}
+                  className="w-32"
+                >
+                  <Play className="w-4 h-4 mr-2 fill-current" />
+                  {elapsedSeconds > 0 ? "Resume" : "Start Timer"}
+                </Button>
+              ) : (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={stopTimer}
+                  className="w-32"
+                >
+                  <Pause className="w-4 h-4 mr-2 fill-current" />
+                  Pause
+                </Button>
+              )}
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={resetTimer}
+                disabled={!selectedText || elapsedSeconds === 0}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
+            </div>
+
             <ScrollArea className="flex-1 p-8">
               {selectedText ? (
                 <div className="max-w-2xl mx-auto">
-                  <h2 className="text-2xl font-bold mb-6">{selectedText.title}</h2>
-                  <div className="flex flex-wrap gap-2 text-xl leading-relaxed">
+                  <div className={`flex flex-wrap gap-2 text-2xl leading-relaxed transition-opacity ${!isActive && elapsedSeconds === 0 ? "opacity-50" : "opacity-100"}`}>
                     {words.map((word, index) => (
                       <span
                         key={index}
                         onClick={() => toggleWord(index)}
-                        className={`cursor-pointer px-1 rounded transition-colors ${
+                        className={`cursor-pointer px-1.5 py-0.5 rounded transition-all select-none ${
                           markedIndices.has(index)
-                            ? "bg-primary text-primary-foreground font-medium"
+                            ? "bg-primary text-primary-foreground font-medium scale-105 shadow-sm"
                             : "hover:bg-muted"
-                        }`}
+                        } ${!isActive && elapsedSeconds > 0 ? "pointer-events-none opacity-80" : ""}`}
                       >
                         {word}
                       </span>
                     ))}
                   </div>
+                  {!isActive && elapsedSeconds === 0 && (
+                    <p className="text-center mt-12 text-muted-foreground animate-pulse">
+                      Click "Start Timer" to begin the assessment
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
@@ -186,6 +277,7 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
               <Button 
                 onClick={handleSave} 
                 disabled={!selectedText || markedIndices.size === 0}
+                className="min-w-[120px]"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Save Result
