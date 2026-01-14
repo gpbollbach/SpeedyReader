@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, SortAsc, SortDesc, Clock } from "lucide-react";
+import { Search, Users, SortAsc, SortDesc, Clock, Download } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Student, ReadingTest } from "@shared/schema";
 import { calculateStudentAnalytics } from "@/lib/utils";
 import StudentCard from "./StudentCard";
 import AddStudentModal from "./AddStudentModal";
+import * as XLSX from "xlsx";
+import { format } from "date-fns";
 
 interface StudentListProps {
   students: Student[];
@@ -78,6 +80,24 @@ export default function StudentList({
     }
   };
 
+  const exportToExcel = () => {
+    const data = students.flatMap(student => {
+      const studentTests = tests.filter(t => t.studentId === student.id);
+      return studentTests.map(test => ({
+        "Student Name": student.name,
+        "Grade": student.grade || "N/A",
+        "WPM": test.wordsPerMinute,
+        "Date": format(new Date(test.testDate), "yyyy-MM-dd"),
+        "Time": format(new Date(test.testDate), "HH:mm:ss")
+      }));
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Reading Tests");
+    XLSX.writeFile(workbook, `reading_tests_export_${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -87,7 +107,19 @@ export default function StudentList({
             Students
             <Badge variant="secondary">{filteredAndSortedStudents.length}</Badge>
           </div>
-          <AddStudentModal />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToExcel}
+              disabled={tests.length === 0}
+              className="h-8"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export XLS
+            </Button>
+            <AddStudentModal />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
