@@ -150,24 +150,63 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
               )}
             </div>
             
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-mono font-bold tabular-nums">
-                  00:{timeLeft.toString().padStart(2, '0')}
-                </div>
-                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Time Remaining</div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center bg-muted/30 p-1 rounded-lg border gap-1">
+                {!isActive ? (
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={startTimer}
+                    disabled={!selectedText || timeLeft === 0}
+                    className="h-8 px-3"
+                  >
+                    <Play className="w-3 h-3 mr-2 fill-current" />
+                    {elapsedSeconds > 0 ? "Resume" : "Start"}
+                  </Button>
+                ) : (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={stopTimer}
+                    className="h-8 px-3"
+                  >
+                    <Pause className="w-3 h-3 mr-2 fill-current" />
+                    Pause
+                  </Button>
+                )}
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={resetTimer}
+                  disabled={!selectedText || elapsedSeconds === 0}
+                  className="h-8 w-8 p-0"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                </Button>
               </div>
 
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary tabular-nums">
-                  {currentWPM}
+              <div className="flex items-center gap-6 px-4 border-l">
+                <div className="text-center">
+                  <div className="text-xl font-mono font-bold tabular-nums">
+                    00:{timeLeft.toString().padStart(2, '0')}
+                  </div>
+                  <div className="text-[9px] uppercase text-muted-foreground font-semibold">Time</div>
                 </div>
-                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Current WPM</div>
-              </div>
 
-              <Badge variant="outline" className="text-lg py-1 px-3">
-                {correctCount} / {selectedText?.wordCount || 0}
-              </Badge>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-primary tabular-nums">
+                    {currentWPM}
+                  </div>
+                  <div className="text-[9px] uppercase text-muted-foreground font-semibold">WPM</div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <Badge variant="outline" className="text-sm py-0 px-2">
+                    {correctCount} / {selectedText?.wordCount || 0}
+                  </Badge>
+                  <div className="text-[9px] uppercase text-muted-foreground font-semibold mt-1">Words</div>
+                </div>
+              </div>
             </div>
           </div>
         </DialogHeader>
@@ -203,43 +242,21 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
 
           {/* Detail: Text View & Marking */}
           <div className="flex-1 flex flex-col bg-background">
-            <div className="p-4 border-b bg-muted/5 flex items-center justify-center gap-2">
-              {!isActive ? (
-                <Button 
-                  size="sm" 
-                  onClick={startTimer}
-                  disabled={!selectedText || timeLeft === 0}
-                  className="w-32"
-                >
-                  <Play className="w-4 h-4 mr-2 fill-current" />
-                  {elapsedSeconds > 0 ? "Resume" : "Start Timer"}
-                </Button>
-              ) : (
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={stopTimer}
-                  className="w-32"
-                >
-                  <Pause className="w-4 h-4 mr-2 fill-current" />
-                  Pause
-                </Button>
-              )}
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                onClick={resetTimer}
-                disabled={!selectedText || elapsedSeconds === 0}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset
-              </Button>
-            </div>
-
             <ScrollArea className="flex-1 p-8">
               {selectedText ? (
                 <div className="max-w-2xl mx-auto">
-                  <div className={`flex flex-wrap gap-2 text-2xl leading-relaxed transition-opacity ${!isActive && elapsedSeconds === 0 ? "opacity-50" : "opacity-100"}`}>
+                  {!isActive && elapsedSeconds > 0 && (
+                    <div className="mb-8 p-4 bg-primary/5 border border-primary/20 rounded-lg text-center animate-in fade-in slide-in-from-top-2">
+                      <p className="text-sm text-muted-foreground uppercase font-bold tracking-wider mb-1">Current Progress</p>
+                      <p className="text-3xl font-bold text-primary">
+                        {correctCount} words correctly read
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Calculated speed: {currentWPM} WPM
+                      </p>
+                    </div>
+                  )}
+                  <div className={`flex flex-wrap gap-2 text-2xl leading-relaxed transition-all duration-300 ${!isActive && elapsedSeconds === 0 ? "opacity-50 blur-[1px]" : "opacity-100"}`}>
                     {words.map((word, index) => (
                       <span
                         key={index}
@@ -256,7 +273,7 @@ export function ActiveReview({ open, onOpenChange, student, onSubmit }: ActiveRe
                   </div>
                   {!isActive && elapsedSeconds === 0 && (
                     <p className="text-center mt-12 text-muted-foreground animate-pulse">
-                      Click "Start Timer" to begin the assessment
+                      Click "Start" to begin the assessment
                     </p>
                   )}
                 </div>
