@@ -5,6 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import StudentList from "@/components/StudentList";
 import TestRecordForm from "@/components/TestRecordForm";
+import { ActiveReview } from "@/components/ActiveReview";
 import ProgressChart from "@/components/ProgressChart";
 import TestHistory from "@/components/TestHistory";
 import ClassDistributionChart from "@/components/ClassDistributionChart";
@@ -15,6 +16,7 @@ import { BootupTerminal } from "@/components/BootupTerminal";
 export default function Dashboard() {
   const { toast } = useToast();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [showActiveReview, setShowActiveReview] = useState(false);
 
   // Fetch students
   const { data: students = [], isLoading: studentsLoading, error: studentsError } = useQuery<Student[]>({
@@ -144,7 +146,7 @@ export default function Dashboard() {
           </div>
 
           {/* Column 2: Record Test Form */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 space-y-4">
             <TestRecordForm
               students={students}
               selectedStudent={selectedStudent}
@@ -154,6 +156,15 @@ export default function Dashboard() {
               }}
               onSubmit={handleRecordTest}
             />
+            {selectedStudent && (
+              <Button 
+                variant="outline" 
+                className="w-full h-12 text-lg font-semibold"
+                onClick={() => setShowActiveReview(true)}
+              >
+                Active Review
+              </Button>
+            )}
           </div>
 
           {/* Column 3: Progress and History */}
@@ -184,6 +195,14 @@ export default function Dashboard() {
           <StudentAverageChart students={students} tests={tests} />
         </div>
       </div>
+      {selectedStudent && (
+        <ActiveReview
+          open={showActiveReview}
+          onOpenChange={setShowActiveReview}
+          student={selectedStudent}
+          onSubmit={handleRecordTest}
+        />
+      )}
     </div>
   );
 }
