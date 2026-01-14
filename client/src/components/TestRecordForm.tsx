@@ -15,13 +15,15 @@ interface TestRecordFormProps {
   selectedStudent?: Student;
   onStudentSelect: (studentId: string) => void;
   onSubmit: (data: { studentId: string; wordsPerMinute: number; testDate: Date }) => void;
+  onActiveReview: () => void;
 }
 
 export default function TestRecordForm({
   students,
   selectedStudent,
   onStudentSelect,
-  onSubmit
+  onSubmit,
+  onActiveReview
 }: TestRecordFormProps) {
   const [wpm, setWpm] = useState(100);
   const [date, setDate] = useState<Date>(new Date());
@@ -196,14 +198,26 @@ export default function TestRecordForm({
             </Popover>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={!selectedStudent || !wpm}
-            data-testid="button-record-test"
-          >
-            Record Test
-          </Button>
+          <div className="flex flex-col gap-2 pt-2">
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={!selectedStudent || !wpm}
+              data-testid="button-record-test"
+            >
+              Record Test
+            </Button>
+            {selectedStudent && (
+              <Button 
+                type="button"
+                variant="outline" 
+                className="w-full"
+                onClick={onActiveReview}
+              >
+                Active Review
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>

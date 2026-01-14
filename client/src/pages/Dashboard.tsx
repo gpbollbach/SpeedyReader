@@ -146,7 +146,7 @@ export default function Dashboard() {
           </div>
 
           {/* Column 2: Record Test Form */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-3">
             <TestRecordForm
               students={students}
               selectedStudent={selectedStudent}
@@ -155,16 +155,8 @@ export default function Dashboard() {
                 if (student) setSelectedStudent(student);
               }}
               onSubmit={handleRecordTest}
+              onActiveReview={() => setShowActiveReview(true)}
             />
-            {selectedStudent && (
-              <Button 
-                variant="outline" 
-                className="w-full h-12 text-lg font-semibold"
-                onClick={() => setShowActiveReview(true)}
-              >
-                Active Review
-              </Button>
-            )}
           </div>
 
           {/* Column 3: Progress and History */}
