@@ -8,7 +8,9 @@ This is a teacher dashboard application for tracking and monitoring student read
 
 - **Student Management**: Add, view, and organize students with grade-level filtering.
 - **Test Recording**: Intuitive WPM input with date selection and immediate feedback.
+- **Active Review**: Live reading assessment with 60-second timer, real-time WPM calculation, and word-by-word marking.
 - **Progress Tracking**: Visual charts showing reading speed improvement over time.
+- **Data Export**: Export student reading test results as Excel (XLSX) files for offline analysis.
 - **Sorting and Filtering**: Multiple sorting options (last tested, best/worst progress, alphabetical).
 - **Responsive Design**: Mobile-optimized interface with touch-friendly controls.
 
