@@ -174,31 +174,36 @@ For deploying the full-stack application, we recommend services like:
 
 These platforms are designed to host full-stack applications and databases.
 
-## System Architecture
+## Implementation State
 
-### Frontend Architecture
+### Client-Side Features
+- **Offline Persistence**: Integrated **Dexie.js** for robust IndexedDB management.
+  - Automatic data caching for all student records and test history.
+  - Full application functionality (viewing, searching, analysis) during network outages.
+  - Local-first mutation support: adding students or recording tests while offline preserves data in IndexedDB.
+- **Active Reading Assessment**:
+  - Live 60-second timed assessments with interactive word-by-word marking.
+  - Real-time Words Per Minute (WPM) calculation during assessment.
+  - Master-detail interface with sample reading texts.
+  - Progress summary dashboards displayed upon pausing or completion.
+- **Data Export**:
+  - Integrated **XLSX** library for professional data reporting.
+  - One-click export of the entire test history database to Excel format.
+- **Interactive Analytics**:
+  - Dynamic line charts for individual progress tracking using **Recharts**.
+  - Class-wide distribution and average performance analytics.
+  - Mobile-optimized WPM input via custom touch-friendly carousel.
 
-- **Framework**: React 18 with TypeScript using Vite as the build tool
-- **UI Library**: Shadcn/ui components built on Radix UI primitives for accessibility and consistency
-- **Styling**: Tailwind CSS with custom design system featuring educational-focused color palette and typography
-- **State Management**: TanStack Query (React Query) for server state management and caching
-- **Routing**: Wouter for lightweight client-side routing
-- **Forms**: React Hook Form with Zod validation for type-safe form handling
-
-### Backend Architecture
-
-- **Runtime**: Node.js with Express.js REST API
-- **Language**: TypeScript with ES modules
-- **Database ORM**: Drizzle ORM for type-safe database operations
-- **API Design**: RESTful endpoints for CRUD operations on students and reading tests
-- **Error Handling**: Centralized error handling middleware with structured JSON responses
-
-### Database Schema
-
-- **Students Table**: Stores student information (id, name, grade) with UUID primary keys
-- **Reading Tests Table**: Records test results (id, student_id, words_per_minute, test_date) with foreign key relationships
-- **Database Provider**: PostgreSQL via Neon Database with connection pooling
-- **Migrations**: Drizzle Kit for schema migrations and database management
+### Server-Side Features
+- **Flexible Storage Architecture**:
+  - **PostgreSQL**: Production-ready persistence using **Neon Database** and **Drizzle ORM**.
+  - **In-Memory Storage**: Development/Test mode with pre-seeded sample data.
+- **RESTful API**:
+  - Centralized student and test result management.
+  - Type-safe schema validation using **Zod** shared across the stack.
+  - Connection pooling for efficient database performance.
+- **Real-time Indicators**:
+  - Lightweight presence tracking (online/offline status) for students based on activity timestamps.
 
 ## Dependencies
 
